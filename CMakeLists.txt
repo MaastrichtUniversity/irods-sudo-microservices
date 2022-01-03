@@ -13,6 +13,9 @@ message(STATUS "Building for irods-server version ${IRODS_VERSION}")
 
 set(CMAKE_CXX_COMPILER ${IRODS_EXTERNALS_FULLPATH_CLANG}/bin/clang++)
 
+# Set path for dependencies coming via irods-externals
+set(BOOST_ROOT "/opt/irods-externals/boost1.60.0-0")
+
 project(sudo-msis CXX)
 
 add_compile_options(-std=c++14
@@ -34,6 +37,10 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++")
 link_libraries(c++abi)
 include_directories("${IRODS_EXTERNALS_FULLPATH_CLANG}/include/c++/v1")
 include_directories("/usr/include/irods")
+
+# Include the Boost header files into the project
+find_package(Boost REQUIRED)
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 # Common functionalities required by all sudo msis.
 add_library(sudo_common              STATIC src/common.cc)
