@@ -127,9 +127,11 @@ set(CPACK_RPM_PACKAGE_AUTOPROV 0)
 # - We'd like to leave the permissions&ownership of this directory alone, but
 #   CMake doesn't let us.
 # - As a compromise we reset ownership to irods:irods using a post-install script.
-#   (currently only implemented in the RPM)
+# - The post-install script is added to both the RPM and DEB package. Note that it does not have a file extension as
+#   that is not supported for pre- and post-install scripts in DEB packages. RPM is less picky.
 #
-set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/package/postinst.sh")
+set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/package/postinst")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/package/postinst")
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "irods-server (= ${IRODS_VERSION})")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/UtrechtUniversity/irods-sudo-microservices")
