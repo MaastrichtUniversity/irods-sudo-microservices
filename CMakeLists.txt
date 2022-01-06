@@ -13,6 +13,9 @@ message(STATUS "Building for irods-server version ${IRODS_VERSION}")
 
 set(CMAKE_CXX_COMPILER ${IRODS_EXTERNALS_FULLPATH_CLANG}/bin/clang++)
 
+# Set additional modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMakeModules")
+
 # Set path for dependencies coming via irods-externals
 set(BOOST_ROOT "/opt/irods-externals/boost1.60.0-0")
 
@@ -85,17 +88,28 @@ install(FILES "policies.re"
 
 set(CPACK_MONOLITHIC_INSTALL 1)
 set(CPACK_CMAKE_GENERATOR "Unix Makefiles")
-#set(CPACK_GENERATOR "RPM;DEB")
-set(CPACK_GENERATOR "RPM")
 set(CPACK_PACKAGE_NAME "irods-sudo-microservices")
 set(CPACK_PACKAGE_VENDOR "Utrecht University <fbyoda@uu.nl>")
 set(CPACK_PACKAGE_CONTACT "Utrecht University <fbyoda@uu.nl>")
-set(CPACK_PACKAGE_VERSION "4.2.6_1.0.0")
-#set(CPACK_PACKAGE_VERSION_MAJOR "1")
-#set(CPACK_PACKAGE_VERSION_MINOR "0")
-#set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/package/description.txt")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "iRODS microservices for policy-enhanced administrative operations")
+
+# Run custom CMake module to detect OS family
+include(${CMAKE_MODULE_PATH}/DetectOS.cmake)
+message(STATUS "Found Linux distro ${DETECTED_OS}")
+
+# Determine which type of package should be generated
+if(DETECTED_OS MATCHES "^(Ubuntu|Debian)$")
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_PACKAGE_VERSION "${IRODS_VERSION}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+elseif(DETECTED_OS MATCHES "^(CentOS|RedHatCompatible)$")
+    set(CPACK_GENERATOR "RPM")
+    set(CPACK_PACKAGE_VERSION "${IRODS_VERSION}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+endif()
+message(STATUS "Using CPACK generator ${CPACK_GENERATOR}")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.LESSER")
 set(CPACK_RESOURCE_FILE_README  "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
